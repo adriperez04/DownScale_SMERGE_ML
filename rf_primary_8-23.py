@@ -170,7 +170,3 @@ plot_tfdf_importances(inspector=inspector, importance_type='INV_MEAN_MIN_DEPTH',
 plot_tfdf_importances(inspector=inspector, importance_type='NUM_NODES', name=resolution + "_NumNodes.png")
 
 
-
-# Running another script at the end of the current script
-subprocess.run(["python", "Era3_1400.py"])
-
