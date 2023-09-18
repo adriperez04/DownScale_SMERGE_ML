@@ -14,8 +14,8 @@ import string
 import warnings
 import sys
 
-#Thsi can be automatied with a simple for loop and a lists of nessary inputs, column names and data product names may need to be
-#cahnge depending on structure, this script relies on all the data tables to be in the same directory and for the data sets to be
+# This can be automated with a simple for loop and a list of necessary inputs, column names, and data product names that may need to be
+#changed depending on structure, this script relies on all the data tables to be in the same directory and for the data sets to be
 #broken up by day
 
 
