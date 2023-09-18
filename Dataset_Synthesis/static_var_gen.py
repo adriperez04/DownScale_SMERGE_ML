@@ -20,7 +20,7 @@ home = input("Enter the home directory where the datasets are located: ")
 static_dataset_name = input("Enter the name of the dataset had has the static data (including file extension): ")
 static_file = os.path.join(home, static_dataset_name)
 
-# Checking if the file exists and prompting the user until a valid file is provided
+# Checking if the file exists using os.path.exists and prompting the user until a valid file is provided
 while not os.path.exists(static_file):
     print(static_file + " does not exist. Please enter the correct dataset name.")
     # Constructing home paths
