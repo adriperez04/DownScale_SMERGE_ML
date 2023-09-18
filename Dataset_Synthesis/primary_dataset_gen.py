@@ -31,6 +31,7 @@ num_dates = len(date)
 def main_data_synth(name, input_dir, output_dir):
     static_home = input_dir
     file_list = []
+    # This loop screens out all none .csv files
     for f in os.listdir(input_dir):
         if f.endswith(".csv"):
             file_list.append(f)
@@ -41,6 +42,7 @@ def main_data_synth(name, input_dir, output_dir):
     ndvi_file_list = []
     smerge_file_list = []
     ver_file_list = []
+    # This loop sorts all file names into different categories based on the first few characters
     for w in file_list:
         if w.startswith("ALB"):
             alb_file_list.append(os.path.join(input_dir, w))
@@ -59,6 +61,7 @@ def main_data_synth(name, input_dir, output_dir):
         columns=['SMERGE', 'Date', 'Temp', 'LAI', 'Albedo', 'NDVI', 'Clay', 'Sand', 'Silt', 'Slope', 'Elevation',
                  'Aspect'])
     static = pd.read_csv(os.path.join(static_home, name + '_static.csv'))
+    # This loop collects all the data columns associated with a date and then combines them vertically
     for k in range(1, num_dates):
         current = pd.DataFrame(index=static["PageName"],
                                columns=['SMERGE', 'Date', 'Temp', 'LAI', 'Albedo', 'NDVI', 'Clay', 'Sand', 'Silt',
@@ -89,6 +92,7 @@ def main_data_synth(name, input_dir, output_dir):
             data1.to_csv(os.path.join(output_dir, name+'_processed.csv'), index=False)
             train_test(data1, output_dir, name)
 
+# Creates the training and testing dataset, depending on whether there is verification data or not.
 def train_test(data, out, n):
     df_train, df_test = train_test_split(data, test_size=0.30, random_state=42)
     if verify == 'Y' and verify2 == 'N':
