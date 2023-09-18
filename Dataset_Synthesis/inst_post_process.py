@@ -57,5 +57,7 @@ for q in range(0, p):
 out.sort_values(by=['Station', 'Date'], inplace=True)
 out.drop(columns=['index'], inplace=True)
 print(os.path.join(input_dir, d_name))
+# os.path.join() joins directory string and name in a way that the host os can understand
+# d_name.replace('.csv','inst.csv') and in the end of the filename 'inst'
 out.to_csv(os.path.join(input_dir, d_name.replace('.csv','inst.csv')), index=False)
 
