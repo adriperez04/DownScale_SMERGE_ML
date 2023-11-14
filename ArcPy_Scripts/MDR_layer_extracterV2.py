@@ -15,7 +15,7 @@ input_dir = input("Enter the input directory: ")
 output_dir = input("Enter the output directory: ")
 
 # Set the layer name
-layer_name = input("Enter the layer name to be extracted")
+layer_name = input("Enter the layer name to be extracted: ")
 
 # Read list of dates
 text_file = open("dates.txt", "r")
@@ -25,7 +25,7 @@ while not os.path.exists(text_file):
     co = input("Press enter to try again")
 date = text_file.read().split(',')
 
-offset = input('Enter the date offset, if there is none enter 0')
+offset = input('Enter the date offset, if there is none enter 0: ')
 try:
     offset = int(offset)
 except:
