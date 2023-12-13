@@ -1,0 +1,264 @@
+{
+ "cells": [
+  {
+   "cell_type": "code",
+   "execution_count": 1,
+   "id": "26c37cc0",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import arcpy\n",
+    "from arcpy import env\n",
+    "import re\n",
+    "import pandas as pd\n",
+    "from arcpy.sa import *\n",
+    "import os"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 2,
+   "id": "ef2292d9",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# Define the parent folder and the geodatabase name\n",
+    "parent_folder = os.getcwd()\n",
+    "geodatabase_name = \"example.gdb\""
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 3,
+   "id": "8156631c",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "C:\\Users\\asanchez2415\\Documents\\example.gdb\n"
+     ]
+    }
+   ],
+   "source": [
+    "# Create the file geodatabase\n",
+    "geodatabase_path = os.path.join(parent_folder, geodatabase_name)\n",
+    "if os.path.exists(geodatabase_path):\n",
+    "    print(geodatabase_path)\n",
+    "else:\n",
+    "    arcpy.CreateFileGDB_management(parent_folder, geodatabase_name)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 4,
+   "id": "07135f87",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# Set the geodatabase as the workspace\n",
+    "arcpy.env.workspace = geodatabase_path"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 5,
+   "id": "25c7661f",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# Set up the environment\n",
+    "arcpy.env.parallelProcessingFactor = 0\n",
+    "arcpy.CheckOutExtension(\"Spatial\")\n",
+    "arcpy.env.matchMultidimensionalVariable = False\n",
+    "arcpy.env.overwriteOutput = True"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 6,
+   "id": "200ade1a",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Enter the name of the data product: Cope\n",
+      "Enter the name of the point shape file, you want to use: Cope_Grid_30_Points3\n"
+     ]
+    }
+   ],
+   "source": [
+    "# Set data product name\n",
+    "product = input(\"Enter the name of the data product: \")\n",
+    "# Select point file\n",
+    "point_shape_name = input('Enter the name of the point shape file, you want to use: ')\n",
+    "gb_thirty_points = os.path.join(geodatabase_path, point_shape_name)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 7,
+   "id": "27685e0c",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "['Cope_000', 'Cope_001', 'Cope_002', 'Cope_003', 'Cope_004', 'Cope_005', 'Cope_006', 'Cope_007', 'Cope_008', 'Cope_009', 'Cope_010', 'Cope_011', 'Cope_012', 'Cope_013', 'Cope_014', 'Cope_015', 'Cope_016', 'Cope_018', 'Cope_019', 'Cope_020', 'Cope_021', 'Cope_022', 'Cope_023', 'Cope_024', 'Cope_025', 'Cope_026', 'Cope_027', 'Cope_028', 'Cope_029', 'Cope_030', 'Cope_031', 'Cope_039', 'Cope_040', 'Cope_041', 'Cope_048', 'Cope_049', 'Cope_050', 'Cope_051', 'Cope_052', 'Cope_053', 'Cope_054', 'Cope_055', 'Cope_056', 'Cope_062', 'Cope_063', 'Cope_064', 'Cope_065', 'Cope_066', 'Cope_067', 'Cope_068', 'Cope_069', 'Cope_070', 'Cope_071', 'Cope_072', 'Cope_073', 'Cope_074', 'Cope_075', 'Cope_076', 'Cope_077', 'Cope_078', 'Cope_080', 'Cope_081', 'Cope_082', 'Cope_083', 'Cope_089', 'Cope_090', 'Cope_091', 'Cope_092', 'Cope_093', 'Cope_094', 'Cope_095', 'Cope_096', 'Cope_097', 'Cope_098', 'Cope_099', 'Cope_100', 'Cope_101', 'Cope_102', 'Cope_103', 'Cope_104', 'Cope_105', 'Cope_106', 'Cope_107', 'Cope_108', 'Cope_109', 'Cope_110', 'Cope_111', 'Cope_112', 'Cope_113', 'Cope_114', 'Cope_115', 'Cope_116', 'Cope_117', 'Cope_118', 'Cope_119', 'Cope_120', 'Cope_121', 'Cope_122', 'Cope_123']\n"
+     ]
+    }
+   ],
+   "source": [
+    "import pandas as pd\n",
+    "table = gb_thirty_points\n",
+    "columns = [f.name for f in arcpy.ListFields(table) if f.type!=\"Geometry\" and product in f.name] #List the fields you want to include.\n",
+    "print(columns)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 8,
+   "id": "e1585a35",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "fields = []\n",
+    "for c in columns:\n",
+    "    temp = [c, 'MEAN']\n",
+    "    fields.append(temp)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 15,
+   "id": "cffb368f",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Enter the full file path and name of the grid shape file: E:\\share\\BIgRun\\Grids\\Grid_400.shp\n",
+      "Enter resolution of grid shape file: 400\n",
+      "Enter name of output: Cope_400\n"
+     ]
+    },
+    {
+     "data": {
+      "text/html": [
+       "<div class='gpresult'><h2>Messages</h2><div id='messages' data-messages='[\"Start Time: Tuesday, November 14, 2023 10:41:52 AM\",\"Succeeded at Tuesday, November 14, 2023 10:42:54 AM (Elapsed Time: 1 minutes 1 seconds)\"]' data-show='true'><div id = 'default' /></div></div>"
+      ],
+      "text/plain": [
+       "<Result 'C:\\\\Users\\\\asanchez2415\\\\Documents\\\\example.gdb\\\\Grid_400'>"
+      ]
+     },
+     "execution_count": 15,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "grid_shape_file = input(\"Enter the full file path and name of the grid shape file: \")\n",
+    "\n",
+    "while not os.path.isfile(grid_shape_file):\n",
+    "    print('The shapefile was not found')\n",
+    "    co = input(\"Please try again: \")\n",
+    "# Set resloution\n",
+    "resolution = input('Enter resolution of grid shape file: ')\n",
+    "# Set output name\n",
+    "out_n = input('Enter name of output: ')\n",
+    "grid_db = 'Grid_'+resolution\n",
+    "arcpy.conversion.FeatureClassToFeatureClass(grid_shape_file,geodatabase_path,grid_db)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 16,
+   "id": "2067cfe1",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "<div class='gpresult'><h2>Messages</h2><div id='messages' data-messages='[\"Start Time: Tuesday, November 14, 2023 10:42:56 AM\",\"Started Spark Job 1 with 471 tasks.\",\"Spark Job 1 completed in 156.2 seconds.\",\"Started Spark Job 2 with 471 tasks.\",\"Spark Job 2 completed in 254.6 seconds.\",\"Started Spark Job 3 with 1948 tasks.\",\"Spark Job 3 completed in 542.4 seconds.\",\"\",\"Succeeded at Tuesday, November 14, 2023 10:59:06 AM (Elapsed Time: 16 minutes 9 seconds)\"]' data-show='true'><div id = 'default' /></div></div>"
+      ],
+      "text/plain": [
+       "<Result 'C:\\\\Users\\\\asanchez2415\\\\Documents\\\\example.gdb\\\\Cope_400'>"
+      ]
+     },
+     "execution_count": 16,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "arcpy.gapro.AggregatePoints(point_layer=gb_thirty_points,out_feature_class=out_n,polygon_or_bin='polygon', polygon_layer=grid_db, summary_fields=fields)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 17,
+   "id": "713c19cf",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Enter output folder path for table: E:\\share\\BIgRun\\Tables\n"
+     ]
+    },
+    {
+     "data": {
+      "text/html": [
+       "<div class='gpresult'><h2>Messages</h2><div id='messages' data-messages='[\"Start Time: Tuesday, November 14, 2023 11:15:16 AM\",\"Succeeded at Tuesday, November 14, 2023 11:15:37 AM (Elapsed Time: 20.68 seconds)\"]' data-show='true'><div id = 'default' /></div></div>"
+      ],
+      "text/plain": [
+       "<Result 'E:\\\\share\\\\BIgRun\\\\Tables\\\\Cope_400.csv'>"
+      ]
+     },
+     "execution_count": 17,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "out_folder = input('Enter output folder path for table: ')\n",
+    "arcpy.conversion.TableToTable(out_n, out_folder, out_n + '.csv')"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "4871c650",
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": "Python 3 (ipykernel)",
+   "language": "python",
+   "name": "python3"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 3
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython3",
+   "version": "3.9.16"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 5
+}
